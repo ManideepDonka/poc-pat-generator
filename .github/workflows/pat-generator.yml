@@ -1,0 +1,28 @@
+name: POC PAT Generator
+on:
+  workflow_dispatch:
+    inputs:
+      tag-name:
+        description: 'name of the tag'
+        required: true
+        type: string
+
+jobs:
+  poc-pat-generator:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+
+      - name: Get Token
+        id: get_workflow_token
+        uses: peter-murray/workflow-application-token-action@v1.3.0
+        with:
+          application_id: ${{ secrets.PAT_APP_ID }}
+          application_private_key: ${{ secrets.PAT_APP_PRIVATE_KEY }}
+
+      - name: Tag and Release
+        uses: avakar/tag-and-release@v1.0.0
+        env:
+          GITHUB_TOKEN: ${{ steps.get_workflow_token.outputs.token }}
+        with:
+          tag_name: ${{ github.event.inputs.tag-name }}
